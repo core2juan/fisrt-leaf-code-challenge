@@ -12,6 +12,7 @@ services:
     build: .
     volumes:
       - .:/app
+      - bundle_cache:/usr/local/bundle
     ports:
       - "3005:3005"
     stdin_open: true
@@ -40,9 +41,11 @@ services:
     tty: true
     volumes:
       - '.:/web'
+      - bundle_cache:/usr/local/bundle
     environment:
       - REDIS_URL_SIDEKIQ=redis://redis:6379/1
 
 volumes:
   redis:
   postgres:
+  bundle_cache:
