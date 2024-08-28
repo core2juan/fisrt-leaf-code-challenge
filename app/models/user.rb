@@ -9,4 +9,20 @@ class User < ApplicationRecord
 
   # Scopes
   default_scope -> { order(created_at: :desc) }
+
+  # Callbacks
+  before_validation :generate_key
+
+  # Re-defining the setter method in password to make the hasing+salt procedure
+  # more transparent
+  def password=(value)
+    encrypted_passsword = Digest::MD5.hexdigest("#{value}#{Rails.env['PASSWORD_SALT']}")
+    self.write_attribute(:password, encrypted_passsword)
+  end
+
+  private
+
+  def generate_key
+    self.key = SecureRandom.hex(64)
+  end
 end

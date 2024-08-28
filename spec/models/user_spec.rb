@@ -21,7 +21,7 @@ RSpec.describe User, type: :model do
 
       %w[account_key email key phone_number].each do |field|
         context "when the #{field} is already present" do
-          before { duplicated_user.assign_attributes({"#{field}": user.public_send(field)}) }
+          before { duplicated_user.assign_attributes({"#{field}": user[field]}) }
 
           it 'the record is not valid' do
             expect(duplicated_user).to_not be_valid
