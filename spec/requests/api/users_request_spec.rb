@@ -4,29 +4,82 @@ RSpec.describe 'API::Clients', type: :request do
   subject(:parsed_response) { JSON.parse(response.body) }
 
   describe 'GET /api/users' do
-    context 'when there are records to show' do
-      let!(:users) { create_list(:user, 10, :valid) }
-      let(:matching_template) do
-        # By adding this reverse we also check the ordering by most recent first
-        users.reverse.inject([]) do |accum, user|
-          accum << hash_including(
-            'email' => user.email,
-            'phone_number' => user.phone_number,
-            'full_name' => user.full_name,
-            'key' => user.key,
-            'account_key' => user.account_key,
-            'metadata' => user.metadata
-          )
+    let!(:user) { create(:user, :valid, metadata: 'male, age 32, unemployed, college-educated') }
+    let!(:users) { create_list(:user, 9, :valid) }
+    let(:query_params) { {} }
+
+    before(:each) { get api_users_path, params: query_params }
+
+    let(:matching_template) do
+      # By adding this reverse we also check the ordering by most recent first
+      [user, *users].reverse.inject([]) do |accum, user|
+        accum << hash_including(
+          'email' => user.email,
+          'phone_number' => user.phone_number,
+          'full_name' => user.full_name,
+          'key' => user.key,
+          'account_key' => user.account_key,
+          'metadata' => user.metadata
+        )
+      end
+    end
+
+    it 'returns the payload in the expected format' do
+      expect(response).to have_http_status(:ok)
+      expect(parsed_response['users'].size).to eq(10)
+      expect(parsed_response).to match({
+        'users' => matching_template
+      })
+    end
+
+    context 'when using query params' do
+      %w[email full_name].each do |field|
+        context "when searching by #{field}" do
+          let(:query_params) { { "#{field}": user[field] } }
+
+          it 'returns the user' do
+            expect(response).to have_http_status(:ok)
+            expect(parsed_response['users'].size).to eq(1)
+            expect(parsed_response).to match({
+              'users' => array_including(
+                'email' => user.email,
+                'phone_number' => user.phone_number,
+                'full_name' => user.full_name,
+                'key' => user.key,
+                'account_key' => user.account_key,
+                'metadata' => user.metadata
+              )
+            })
+          end
         end
       end
 
-      before { get api_users_path }
+      context 'when searching by metadata' do
+        let(:query_params) { { metadata: 'unemployed' } }
 
-      it 'returns the payload in the expected format' do
-        expect(parsed_response['users'].size).to eq(10)
-        expect(parsed_response).to match({
-          'users' => matching_template
-        })
+        it 'returns the user' do
+          expect(response).to have_http_status(:ok)
+          expect(parsed_response['users'].size).to eq(1)
+          expect(parsed_response).to match({
+            'users' => array_including(
+              'email' => user.email,
+              'phone_number' => user.phone_number,
+              'full_name' => user.full_name,
+              'key' => user.key,
+              'account_key' => user.account_key,
+              'metadata' => user.metadata
+            )
+          })
+        end
+      end
+
+      context 'when using an invalid search parameter' do
+        let(:query_params) { { invalid_param: 'hello-world' } }
+
+        it 'returns 422' do
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(parsed_response['errors']).to include('Not valid query parameters')
+        end
       end
     end
   end

@@ -9,6 +9,7 @@ class User < ApplicationRecord
 
   # Scopes
   default_scope -> { order(created_at: :desc) }
+  scope :by_metadata, -> (key) { where('metadata ilike ?', "%#{key}%") }
 
   # Callbacks
   before_validation :generate_key
