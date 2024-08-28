@@ -22,7 +22,7 @@ module API
     def create
       user = User.new(user_params)
       if user.save
-        render json: UserSerializer.render(user), status: :ok
+        render json: UserSerializer.render(user), status: :created
       else
         render json: { errors: user.errors.to_a }, status: :unprocessable_entity
       end

@@ -102,7 +102,7 @@ RSpec.describe 'API::Clients', type: :request do
       after { User.delete_all }
 
       it 'creates the user and returns the object in the expected format' do
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
         expect(parsed_response).to match(hash_including(
           'email' => user.email,
           'phone_number' => user.phone_number,
