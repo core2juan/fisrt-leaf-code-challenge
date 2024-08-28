@@ -42,7 +42,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - '.:/web'
+      - '.:/app'
       - bundle_cache:/usr/local/bundle
     environment:
       - REDIS_URL_SIDEKIQ=redis://redis:6379/1

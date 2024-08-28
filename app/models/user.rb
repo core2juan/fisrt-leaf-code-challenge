@@ -1,7 +1,7 @@
 class User < ApplicationRecord
 
   # Validations
-  validates :account_key,  uniqueness: true
+  validates :account_key,  uniqueness: true, if: Proc.new { |user| user.account_key.present? }
   validates :email,        presence: true, uniqueness: true
   validates :key,          presence: true, uniqueness: true
   validates :password,     presence: true
@@ -13,6 +13,7 @@ class User < ApplicationRecord
 
   # Callbacks
   before_validation :generate_key
+  after_create      :request_account_key
 
   # Re-defining the setter method in password to make the hasing+salt procedure
   # more transparent
@@ -25,5 +26,9 @@ class User < ApplicationRecord
 
   def generate_key
     self.key = SecureRandom.hex(64)
+  end
+
+  def request_account_key
+    AccountKeyRequestWorker.perform_async(self.id)
   end
 end

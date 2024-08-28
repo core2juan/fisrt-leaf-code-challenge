@@ -86,6 +86,7 @@ GEM
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
     crass (1.0.6)
+    csv (3.3.0)
     date (3.3.4)
     diff-lcs (1.5.1)
     drb (2.2.1)
@@ -97,6 +98,10 @@ GEM
       railties (>= 5.0.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    httparty (0.22.0)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     io-console (0.7.2)
@@ -119,6 +124,7 @@ GEM
     mini_portile2 (2.8.6)
     minitest (5.23.0)
     msgpack (1.7.2)
+    multi_xml (0.6.0)
     mutex_m (0.2.0)
     net-imap (0.4.11)
       date
@@ -224,6 +230,7 @@ DEPENDENCIES
   bootsnap (= 1.18.3)
   byebug
   factory_bot_rails
+  httparty
   jbuilder (~> 2.5)
   pg (= 1.5.6)
   puma (~> 3.11)
